@@ -2,9 +2,6 @@
 #
 # outpost-calc.py
 #
-# https://stackoverflow.com/questions/464864/how-to-get-all-possible-combinations-of-a-list-s-elements
-# https://docs.python.org/3/library/itertools.html
-#
 #
 import argparse
 from itertools import combinations
@@ -41,6 +38,14 @@ def parse_cmd_line():
         log.error("Unexpected log level = {args.loglevel}\nExiting.\n")
         exit(1)
 
+
+
+
+    is Cards already a list of strings? Can we make it a list of ints?
+
+
+
+
     # Confirm that only numeric cards were provided
     cards = args.cards.split('.')
     for c in cards:
@@ -51,8 +56,6 @@ def parse_cmd_line():
     return {
         'cards' : cards
     }
-
-
 
 
 def find_unique_totals(cards):
@@ -67,12 +70,14 @@ def find_unique_totals(cards):
 
             log.debug(comb)
             
+            # stuck with this 
             comb_total = 0
             for n in comb:
                 comb_total += int(n)  
                 
-            # if we haven't seen this total yet, or if this comb uses more cards,
-            # then store the total and the tuple for later printing
+            # if we haven't seen this total yet, or if this comb uses more cards
+            # than the comb we found before, then store the total and the tuple 
+            # for later printing
             if comb_total not in totals \
             or len(comb) > len(totals[comb_total]):
                 totals[comb_total] = comb
