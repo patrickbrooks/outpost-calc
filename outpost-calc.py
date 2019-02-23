@@ -38,55 +38,63 @@ def parse_cmd_line():
         log.error("Unexpected log level = {args.loglevel}\nExiting.\n")
         exit(1)
 
-
-
-
-    is Cards already a list of strings? Can we make it a list of ints?
-
-
-
-
-    # Confirm that only numeric cards were provided
-    cards = args.cards.split('.')
-    for c in cards:
-        if not c.isnumeric():
+    # Confirm that only numeric cards were provided, and create an
+    # array of numbers from the given array of strings.
+    cards_num = []
+    cards_str = args.cards.split('.')
+    for c in cards_str:
+        if c.isnumeric():
+            cards_num.append(int(c))
+        else:
             log.error(f"Cards includes this non-numeric card: %s", c) 
             exit(2)
     
     return {
-        'cards' : cards
+        'cards' : cards_num
     }
 
 
 def find_unique_totals(cards):
 
     # key = total, 
-    # value = the combination of cards that produces this total using maximum count of cards
+    # value = dictionary with
+    #    'comb_used' = list of used cards
+    #    'comb_unused' = list of unused cards
     totals = {}
+
+    # To determine the set of unused cards, subtract the used cards from 
+    # the full set of cards
+    full_deck = set(cards)
+
+    iter_count = 0 # to show how hard we are working :)
 
     # loop over all lengths of all combinations of cards
     for r in range(len(cards)+1):
         for comb in combinations(cards, r):
-
+            iter_count += 1
             log.debug(comb)
             
             # stuck with this 
-            comb_total = 0
-            for n in comb:
-                comb_total += int(n)  
+            comb_total = sum(comb)
                 
             # if we haven't seen this total yet, or if this comb uses more cards
             # than the comb we found before, then store the total and the tuple 
             # for later printing
             if comb_total not in totals \
             or len(comb) > len(totals[comb_total]):
-                totals[comb_total] = comb
+                temp = {}
+                temp['comb_used'] = comb
 
+                unused_cards = full_deck - set(comb)
+                temp['comb_unused'] = list(unused_cards)
 
-    print("    Total     Cards")
+                totals[comb_total] = temp
+
+    print("    Total         Used Cards       Unused Cards")
     for tot, tup in sorted(totals.items(), key=lambda x: x[0], reverse=True):
-        print(f"{tot:6}    {tup}")            
+        print(f"{tot:6}        {tup['comb_used']}         {tup['comb_unused']}")            
  
+    print(f"\nTotal combinations evaluated = {iter_count}")
 
 if __name__ == '__main__':
 
