@@ -62,10 +62,6 @@ def find_unique_totals(cards):
     #    'comb_unused' = list of unused cards
     totals = {}
 
-    # To determine the set of unused cards, subtract the used cards from 
-    # the full set of cards
-    full_deck = set(cards)
-
     iter_count = 0 # to show how hard we are working :)
 
     # loop over all lengths of all combinations of cards
@@ -74,26 +70,28 @@ def find_unique_totals(cards):
             iter_count += 1
             log.debug(comb)
             
-            # stuck with this 
             comb_total = sum(comb)
                 
-            # if we haven't seen this total yet, or if this comb uses more cards
-            # than the comb we found before, then store the total and the tuple 
-            # for later printing
+            # If we haven't seen this total yet, or if this comb uses more cards
+            # than the comb we found before for this total, then store the total 
+            # and the comb for later printing
             if comb_total not in totals \
             or len(comb) > len(totals[comb_total]):
-                temp = {}
-                temp['comb_used'] = comb
+                totals[comb_total] = {}
+                totals[comb_total]['comb_used'] = comb
 
-                unused_cards = full_deck - set(comb)
-                temp['comb_unused'] = list(unused_cards)
+    # To determine the set of unused cards for each total, set-wise subtract 
+    # the used cards from the entire set of cards
+    full_deck = set(cards)
+    for tot in totals:
+        unused_cards = full_deck - set(totals[tot]['comb_used'])
+        totals[tot]['comb_unused'] = list(unused_cards)
 
-                totals[comb_total] = temp
-
-    print("    Total         Used Cards       Unused Cards")
+    print("\n    Total         Used Cards       Unused Cards")
     for tot, tup in sorted(totals.items(), key=lambda x: x[0], reverse=True):
         print(f"{tot:6}        {tup['comb_used']}         {tup['comb_unused']}")            
  
+    # Flex to show effort :)
     print(f"\nTotal combinations evaluated = {iter_count}")
 
 if __name__ == '__main__':
