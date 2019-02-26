@@ -1,4 +1,15 @@
 # in Powershell
+venv\Scripts\Activate.ps1
 $env:FLASK_ENV = "development" 
 $env:FLASK_APP = "outpost-calc-web"
 flask run
+
+# in Bash
+source venv/bin/activate
+export FLASK_ENV=development
+export FLASK_APP=outpost-calc-web
+flask run
+
+# In VSCode, Ctrl-Shift-P and choose Python:Select Interpreter 
+# to choose the Flask venv in ~/Git/VirtualEnvs
+

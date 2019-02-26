@@ -1,0 +1,14 @@
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Outpost Calc</title>
+        {% else %}
+        <title>Welcome to Outpost Calc</title>
+        {% endif %}
+    </head>
+    <body>
+        <div>Outpost Calc: <a href="/index">Home</a></div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>
