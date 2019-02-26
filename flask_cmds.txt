@@ -1,0 +1,4 @@
+# in Powershell
+$env:FLASK_ENV = "development" 
+$env:FLASK_APP = "outpost-calc-web"
+flask run
