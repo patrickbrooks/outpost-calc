@@ -1,5 +1,6 @@
 #
 # requirements.txt lists libraries installed by pip for python scripts
 #
-
+flask
+flask-wtf
 
