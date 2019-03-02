@@ -13,3 +13,14 @@ flask run
 # In VSCode, Ctrl-Shift-P and choose Python:Select Interpreter 
 # to choose the Flask venv in ~/Git/VirtualEnvs
 
+# Add a user to the database
+Flask) HQ-Mini-2:outpost-calc pb$ flask shell
+Python 3.6.4 (default, Jan  6 2018, 11:51:59)
+[GCC 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.39.2)] on darwin
+App: app [production]
+Instance: /Users/pb/Git/outpost-calc/instance
+>>> u = User(username='patrick')
+>>> u.set_password('brooks')
+>>> db.session.add(u)
+>>> db.session.commit()
+>>>
