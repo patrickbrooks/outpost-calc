@@ -24,3 +24,5 @@ Instance: /Users/pb/Git/outpost-calc/instance
 >>> db.session.add(u)
 >>> db.session.commit()
 >>>
+pb> ... but do I require a migration as well? Table structure is not changing,
+pb> so I don't think so.

@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
 #
-# outpost-calc.py
+# outpost_calc.py
 #
 #
 import argparse
+from collections import Counter, OrderedDict
 from itertools import combinations
 import logging
-from pprint import pprint
+# from pprint import pprint
 from sys import stdout
 
 
@@ -16,8 +17,8 @@ stdout_handler = logging.StreamHandler(stdout)
 stdout_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
 log.addHandler(stdout_handler)
 
-
 def parse_cmd_line():
+    """ Provide command-line help and collection of user-supplied arguments. """
     parser = argparse.ArgumentParser(description="Calculate Outpost card totals")
     parser.add_argument("cards",
                         help='period-separated list of card values (ex. 1.5.7.7.8.13)')
@@ -38,61 +39,92 @@ def parse_cmd_line():
         log.error("Unexpected log level = {args.loglevel}\nExiting.\n")
         exit(1)
 
-    # Confirm that only numeric cards were provided, and create an
-    # array of numbers from the given array of strings.
-    cards_num = []
-    cards_str = args.cards.split('.')
-    for c in cards_str:
-        if c.isnumeric():
-            cards_num.append(int(c))
-        else:
-            log.error(f"Cards includes this non-numeric card: %s", c) 
-            exit(2)
-    
     return {
-        'cards' : cards_num
+        'cards_str' : args.cards
     }
 
+def valid_cards_syntax(cards_str):
+    """ Confirm that only numeric values separated by periods was given as input """
+    cards = cards_str.split('.')
+    for c in cards:
+        if not c.isnumeric():
+            return 'Cards must contain only digits 0-9 separated by periods'
+    return None
 
-def find_unique_totals(cards):
 
-    # key = total, 
+def find_unique_totals(cards_num):
+    """ Brute-force through all possible combinations of cards to find totals. """
+
+    # key = total
     # value = dictionary with
-    #    'comb_used' = list of used cards
-    #    'comb_unused' = list of unused cards
+    #    'used_cards' = list of used cards
     totals = {}
 
     iter_count = 0 # to show how hard we are working :)
 
-    # loop over all lengths of all combinations of cards
-    for r in range(len(cards)+1):
-        for comb in combinations(cards, r):
+    # Loop over all lengths of all combinations of cards_num. Note that
+    # with 20+ cards, this loop is executed millions of times ... so be
+    # sensitive to realtime.
+    for r in range(len(cards_num)+1):
+        for comb in combinations(cards_num, r):
             iter_count += 1
             log.debug(comb)
-            
+
             comb_total = sum(comb)
-                
+
             # If we haven't seen this total yet, or if this comb uses more cards
-            # than the comb we found before for this total, then store the total 
+            # than the comb we found before for this total, then store the total
             # and the comb for later printing
             if comb_total not in totals \
             or len(comb) > len(totals[comb_total]):
                 totals[comb_total] = {}
-                totals[comb_total]['comb_used'] = comb
+                totals[comb_total]['used_cards'] = comb
 
-    # To determine the set of unused cards for each total, set-wise subtract 
-    # the used cards from the entire set of cards
-    full_deck = set(cards)
-    for tot in totals:
-        unused_cards = full_deck - set(totals[tot]['comb_used'])
-        totals[tot]['comb_unused'] = list(unused_cards)
-
-    print("\n    Total         Used Cards       Unused Cards")
-    for tot, tup in sorted(totals.items(), key=lambda x: x[0], reverse=True):
-        print(f"{tot:6}        {tup['comb_used']}         {tup['comb_unused']}")            
- 
     # Flex to show effort :)
-    print(f"\nTotal combinations evaluated = {iter_count}")
+    log.info(f"\nTotal combinations evaluated = {iter_count}")
+
+    return totals
+
+
+def find_unused_cards_totals(full_deck, totals):
+    """ Finds the list of unused cards and their total value """
+
+    # Add these keys to totals
+    #    'unused_cards' = list of unused cards
+    #    'unused_total' = total of unused cards
+
+    for tot in totals:
+
+        # Use collection.Counter instead of Sets so that duplicate card
+        # values are handled correctly.
+        full_deck_c = Counter(full_deck)
+        used_deck = Counter(totals[tot]['used_cards'])
+
+        full_deck_c.subtract(used_deck)
+
+        totals[tot]['unused_cards'] = sorted(full_deck_c.elements())
+        totals[tot]['unused_total'] = sum(totals[tot]['unused_cards'])
+
+    return totals
+
+
+def convert_cards_str_to_nums(cards_str):
+    """ Convert cards_str into a list of ints. """
+    cards_num = []
+
+    for c in cards_str.split('.'):
+        if c.isnumeric():
+            cards_num.append(int(c))
+        else:
+            log.error(f"Cards includes this non-numeric card: %s", c)
+            exit(2)
+    return cards_num
+
+
+def sort_by_totals(totals):
+    """ reverse sort by total """
+    return OrderedDict(sorted(totals.items(), key= lambda x: x[0], reverse=True))
+
 
 if __name__ == '__main__':
 
@@ -101,6 +133,22 @@ if __name__ == '__main__':
     args = parse_cmd_line()
     log.debug(args)
 
-    find_unique_totals(args['cards'])
+    # Confirm that only numeric cards were provided. 
+    error_msg = valid_cards_syntax(args['cards_str'])
+    if error_msg:
+        exit(2)
+
+    # Convert cards_str into a list of ints.
+    cards_num = convert_cards_str_to_nums(args['cards_str'])
+
+    totals = find_unique_totals(cards_num)
+
+    totals = find_unused_cards_totals(cards_num, totals)
+
+    totals = sort_by_totals(totals)
+
+    print("\n  Total      Unused Total       Used Cards       Unused Cards")
+    for total, tup in totals:
+        print(f"{total:6}        {tup['unused_total']:6}      {tup['used_cards']}         {tup['unused_cards']}")
 
     print(f"\nDone.\n")

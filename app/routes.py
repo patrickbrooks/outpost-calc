@@ -1,30 +1,33 @@
-from app import app
-from app.forms import LoginForm
-from app.models import User
+""" routes.py acts as a controller for incoming requests and yields rendered html templates """
+
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
-
+from outpost_calc import convert_cards_str_to_nums, find_unique_totals, find_unused_cards_totals, sort_by_totals
+from app import app
+from app.forms import LoginForm, CardsForm
+from app.models import User
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    postsmock = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=postsmock)
+    """ The main page of the site: enter a deck of cards and see totals """
+    form = CardsForm()
+    totals = None
+    if form.validate_on_submit():
+        # TODO: refactor the interface to outpost_calc ... this is damned lumpy
+        cards_num = convert_cards_str_to_nums(form.cards.data)
+        totals = find_unique_totals(cards_num)
+        totals = find_unused_cards_totals(cards_num, totals)
+        totals = sort_by_totals(totals)
+
+    return render_template('index.html', title='Home', form=form, totals=totals)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """ Typical login page """
     # if current user is already logged in, then don't log in again
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -53,5 +56,6 @@ def login():
 
 @app.route('/logout')
 def logout():
+    """ Typical logout function """
     logout_user()
     return redirect(url_for('index'))
