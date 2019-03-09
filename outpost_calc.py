@@ -8,6 +8,7 @@ from collections import Counter, OrderedDict
 from itertools import combinations
 import logging
 from sys import stdout
+from time import perf_counter
 
 
 # Prepare a logger that prints to stdout
@@ -66,12 +67,16 @@ def find_unique_totals(cards_num):
     #   value = number of used_cards for this total
     card_count = {}
 
+    iters = 0
+    start_time = perf_counter()
+
     # Loop over all lengths of all combinations of cards_num. Note that
     # with 20+ cards, this loop is executed millions of times ... so be
     # sensitive to realtime.
     for r in range(len(cards_num)+1):
         for comb in combinations(cards_num, r):
             log.debug(comb)
+            iters += 1
 
             comb_total = sum(comb)
 
@@ -86,7 +91,10 @@ def find_unique_totals(cards_num):
                 # cache the card count for future comparisons
                 card_count[comb_total] = len(comb)
 
-    return totals
+    elapsed_time = perf_counter() - start_time
+    brag_text = f"{iters:,} possible card combinations evaluated in {elapsed_time:.7f} seconds"
+
+    return {'totals': totals, 'brag_text': brag_text}
 
 
 def find_unused_cards_totals(full_deck, totals):
@@ -144,8 +152,9 @@ if __name__ == '__main__':
     cards_num = convert_cards_str_to_nums(args['cards_str'])
 
     totals = find_unique_totals(cards_num)
+    brag = totals['brag_text']
 
-    totals = find_unused_cards_totals(cards_num, totals)
+    totals = find_unused_cards_totals(cards_num, totals['totals'])
 
     totals = sort_by_totals(totals)
 
@@ -153,6 +162,6 @@ if __name__ == '__main__':
         print(f"\nCards Total  = {total:4}   Used Cards = {tup['used_cards']}\n"
               f"Unused Total = {tup['unused_total']:4}   Unused Cards = {tup['unused_cards']}")
 
-    # print(f"\n{totals[0]['brag_text']}")
+    print(f"\n{brag}\n")
 
     print(f"\nDone.\n")

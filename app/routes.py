@@ -18,15 +18,17 @@ def index():
     """ The main page of the site: enter a deck of cards and see totals """
     form = CardsForm()
     totals = None
+    brag_text = None
     if form.validate_on_submit():
         # TODO: refactor the interface to outpost_calc ... individual functions
         # make for easy unit testing, but this usage feels lumpy
         cards_num = convert_cards_str_to_nums(form.cards.data)
         totals = find_unique_totals(cards_num)
-        totals = find_unused_cards_totals(cards_num, totals)
+        brag_text = totals['brag_text']
+        totals = find_unused_cards_totals(cards_num, totals['totals'])
         totals = sort_by_totals(totals)
 
-    return render_template('index.html', title='Home', form=form, totals=totals)
+    return render_template('index.html', title='Home', form=form, totals=totals, brag=brag_text)
 
 
 @app.route('/login', methods=['GET', 'POST'])
