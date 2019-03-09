@@ -3,7 +3,10 @@
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
-from outpost_calc import convert_cards_str_to_nums, find_unique_totals, find_unused_cards_totals, sort_by_totals
+from outpost_calc import (convert_cards_str_to_nums,
+                          find_unique_totals,
+                          find_unused_cards_totals,
+                          sort_by_totals)
 from app import app
 from app.forms import LoginForm, CardsForm
 from app.models import User
@@ -16,7 +19,8 @@ def index():
     form = CardsForm()
     totals = None
     if form.validate_on_submit():
-        # TODO: refactor the interface to outpost_calc ... this is damned lumpy
+        # TODO: refactor the interface to outpost_calc ... individual functions
+        # make for easy unit testing, but this usage feels lumpy
         cards_num = convert_cards_str_to_nums(form.cards.data)
         totals = find_unique_totals(cards_num)
         totals = find_unused_cards_totals(cards_num, totals)
@@ -59,3 +63,9 @@ def logout():
     """ Typical logout function """
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/about')
+@login_required
+def about():
+    """ An About page that explains this app """
+    return render_template('about.html', title='About')

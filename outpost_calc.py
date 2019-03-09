@@ -7,7 +7,6 @@ import argparse
 from collections import Counter, OrderedDict
 from itertools import combinations
 import logging
-# from pprint import pprint
 from sys import stdout
 
 
@@ -55,17 +54,17 @@ def valid_cards_syntax(cards_str):
 def find_unique_totals(cards_num):
     """ Brute-force through all possible combinations of cards to find totals. """
 
-    # key = total
-    # value = dictionary with
-    #    'used_cards' = list of used cards
+    # Return the used cards for each possible total
+    #   key = total
+    #   value = dictionary with
+    #       'used_cards' = list of used cards
     totals = {}
 
     # Instead of computing the number of cards for a given total each time through
     # the loop below, cache the total and look it up.
-    # key = total
-    # value = number of used_cards for this total
+    #   key = total
+    #   value = number of used_cards for this total
     card_count = {}
-
 
     # Loop over all lengths of all combinations of cards_num. Note that
     # with 20+ cards, this loop is executed millions of times ... so be
