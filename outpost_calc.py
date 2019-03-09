@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
+""" Calculate card totals for the Outpost board game """
 #
 # outpost_calc.py
-#
 #
 import argparse
 from collections import Counter, OrderedDict
@@ -54,14 +54,14 @@ def valid_cards_syntax(cards_str):
 def find_unique_totals(cards_num):
     """ Brute-force through all possible combinations of cards to find totals. """
 
-    # Return the used cards for each possible total
+    # Return the cards used for each possible total
     #   key = total
     #   value = dictionary with
     #       'used_cards' = list of used cards
     totals = {}
 
-    # Instead of computing the number of cards for a given total each time through
-    # the loop below, cache the total and look it up.
+    # Cache the count of the cards used for each total instead of
+    # computing this count during each loop iteration.
     #   key = total
     #   value = number of used_cards for this total
     card_count = {}
@@ -75,9 +75,9 @@ def find_unique_totals(cards_num):
 
             comb_total = sum(comb)
 
-            # If we haven't seen this total yet, or if this comb uses more cards
-            # than the comb we found before for this total, then store the total
-            # and the comb for later printing
+            # If we haven't seen this total yet, 
+            # or if this comb uses more cards than the comb we found before for this total, 
+            # then store the total and the comb for later printing
             if comb_total not in totals \
             or len(comb) > card_count[comb_total]:
                 totals[comb_total] = {}
@@ -136,12 +136,11 @@ if __name__ == '__main__':
     args = parse_cmd_line()
     log.debug(args)
 
-    # Confirm that only numeric cards were provided. 
+    # Confirm that only numeric cards were provided.
     error_msg = valid_cards_syntax(args['cards_str'])
     if error_msg:
         exit(2)
 
-    # Convert cards_str into a list of ints.
     cards_num = convert_cards_str_to_nums(args['cards_str'])
 
     totals = find_unique_totals(cards_num)
@@ -150,9 +149,9 @@ if __name__ == '__main__':
 
     totals = sort_by_totals(totals)
 
-    print("\n  Total      Unused Total       Used Cards       Unused Cards")
     for total, tup in totals.items():
-        print(f"{total:6}        {tup['unused_total']:6}      {tup['used_cards']}         {tup['unused_cards']}")
+        print(f"\nCards Total  = {total:4}   Used Cards = {tup['used_cards']}\n"
+              f"Unused Total = {tup['unused_total']:4}   Unused Cards = {tup['unused_cards']}")
 
     # print(f"\n{totals[0]['brag_text']}")
 
