@@ -60,14 +60,18 @@ def find_unique_totals(cards_num):
     #    'used_cards' = list of used cards
     totals = {}
 
-    iter_count = 0 # to show how hard we are working :)
+    # Instead of computing the number of cards for a given total each time through
+    # the loop below, cache the total and look it up.
+    # key = total
+    # value = number of used_cards for this total
+    card_count = {}
+
 
     # Loop over all lengths of all combinations of cards_num. Note that
     # with 20+ cards, this loop is executed millions of times ... so be
     # sensitive to realtime.
     for r in range(len(cards_num)+1):
         for comb in combinations(cards_num, r):
-            iter_count += 1
             log.debug(comb)
 
             comb_total = sum(comb)
@@ -76,12 +80,12 @@ def find_unique_totals(cards_num):
             # than the comb we found before for this total, then store the total
             # and the comb for later printing
             if comb_total not in totals \
-            or len(comb) > len(totals[comb_total]):
+            or len(comb) > card_count[comb_total]:
                 totals[comb_total] = {}
                 totals[comb_total]['used_cards'] = comb
 
-    # Flex to show effort :)
-    log.info(f"\nTotal combinations evaluated = {iter_count}")
+                # cache the card count for future comparisons
+                card_count[comb_total] = len(comb)
 
     return totals
 
@@ -123,7 +127,7 @@ def convert_cards_str_to_nums(cards_str):
 
 def sort_by_totals(totals):
     """ reverse sort by total """
-    return OrderedDict(sorted(totals.items(), key= lambda x: x[0], reverse=True))
+    return OrderedDict(sorted(totals.items(), key=lambda x: x[0], reverse=True))
 
 
 if __name__ == '__main__':
@@ -148,7 +152,9 @@ if __name__ == '__main__':
     totals = sort_by_totals(totals)
 
     print("\n  Total      Unused Total       Used Cards       Unused Cards")
-    for total, tup in totals:
+    for total, tup in totals.items():
         print(f"{total:6}        {tup['unused_total']:6}      {tup['used_cards']}         {tup['unused_cards']}")
+
+    # print(f"\n{totals[0]['brag_text']}")
 
     print(f"\nDone.\n")

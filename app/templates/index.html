@@ -1,33 +1,26 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
-    <h1>Hello, {{ current_user.username }}!</h1>
+{% block app_content %}
+    <h1>Hello, {{ current_user.username.capitalize() }}!</h1>
 
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.cards.label }}<br>
-            {{ form.cards(size=128) }}
-            {% for error in form.cards.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    <div class="row">
+        <div class="col-md-4">
+            {{ wtf.quick_form(form) }}
+        </div>
+    </div>
+
     {% if totals %}
-    <table style="border: 1px solid black;">
+    <div style="height: 25px"></div>
+    <table class="table table-hover">
         <tr>
-            <th>Total</th>
-            <th>Unused Total</th>
-            <th>Used Cards</th>
-            <th>Unused Cards</th>
+            <th width="175px">Totals</th>
+            <th>Cards</th>
         </th>
         {% for tot in totals %}
         <tr>
-            <td>{{ tot }}</td>
-            <td>{{ totals[tot]['unused_total'] }}</td>
-            <td>{{ totals[tot]['used_cards'] }}</td>
-            <td>{{ totals[tot]['unused_cards'] }}</td>
+            <td>total = {{ tot }}<br>unused total = {{ totals[tot]['unused_total'] }}</td>
+            <td>used cards = {{ totals[tot]['used_cards'] }}<br>unused cards = {{ totals[tot]['unused_cards'] }}</td>
         </tr>
         {% endfor %}
     </table>
