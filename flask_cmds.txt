@@ -26,3 +26,15 @@ Instance: /Users/pb/Git/outpost-calc/instance
 >>>
 pb> ... but do I require a migration as well? Table structure is not changing,
 pb> so I don't think so.
+
+# docker commands
+
+# normal usage
+docker run --name outpost-calc -d -p 8000:5000 outpost-calc:latest
+
+# if not started with --rm
+docker rm outpost-calc    
+
+# for debugging with bash
+docker run --name outpost-calc -it -p 8000:5000 outpost-calc:latest
+

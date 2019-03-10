@@ -1,20 +1,33 @@
 #
-# Outpost Calculator (outpostcalc)
+# Outpost Calculator (outpost-calc)
 #
 # See Docker instructions in Dockerfile_README.md
 #
 FROM python:3-alpine
 
-RUN apk add --no-cache bash bash-doc bash-completion
-# util-linux coreutils findutils grep less groff
+RUN apk add bash
 
-RUN mkdir -p /opt
-WORKDIR /opt
+RUN adduser -D outpostcalc
 
-# COPY requirements.txt /opt
-# RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /home/outpostcalc
 
-# copy the scripts to /opt
-COPY . /opt
+COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+RUN pip install gunicorn
 
-CMD ["/bin/bash"]
+COPY app app
+COPY migrations migrations
+COPY app.db config.py outpost_calc.py outpost-calc-web.py boot.sh ./
+RUN chmod +x boot.sh 
+
+ENV FLASK_APP outpost-calc-web.py
+
+RUN chown -R outpostcalc:outpostcalc ./
+USER outpostcalc
+
+EXPOSE 5000
+ENTRYPOINT ["./boot.sh"]
+
+# for debugging ... 
+# ENTRYPOINT ["bash"]

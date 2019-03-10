@@ -1,6 +1,6 @@
-# Running outpost-calc.py script via Docker container
+# Running outpost_calc.py script and outpost-calc-web.py flask application via Docker containers
 
-These instructions create and run a Docker container that has all dependencies required to execute the outpost-calc.py script.
+These instructions create and run a Docker container that executes the outpost-calc-web.py flask application.
 
 1. Install Docker on your system
 
@@ -9,15 +9,13 @@ These instructions create and run a Docker container that has all dependencies r
 docker version
 ```
 
-1. Check if the outpost-calc image is available on your machine. If you see 'outpost-calc' under the REPOSITORY column, then skip the 'docker build' command in the next step.
-```
-docker images
-```
-
-1. If needed, build the Docker image
+1. Build the Docker image
 ```
 # In the Git/outpost-calc directory
 docker build . -t outpost-calc:latest
+
+# Alternately, use the Makefile
+make image
 ```
 
 1. Confirm the new image
@@ -25,23 +23,34 @@ docker build . -t outpost-calc:latest
 docker images
 ```
 
-1. Start a container from the image. Mounting your home directory will make it easy to edit the code and re-execute it ... if you don't need this, then skip the --mount argument
+1. Start a container from the image
+```
+docker run --name outpost-calc -d -p 8000:5000 --rm outpost-calc:latest
 
-```
-# This command will start a bash shell inside the container
-docker run -it --mount type=bind,source="c:\Users\pbrooks",target=/root outpost-calc
-or
-docker run -it --mount type=bind,source="/Users/pb",target=/root outpost-calc
-```
+# Alternately, use the Makefile
+make run
 
-1. Use the command line within the container to run the script. See README.md for more information.
-```
-./outpost-calc.py -h
+# The web application will be available on port 8000
+http://localhost:8000
 ```
 
-1. When ready, exit the container's command line with 'exit'
+1. If you are developing, then use a virtual enviornment instead of a container. 
+```
+# in Powershell
+venv\Scripts\Activate.ps1
+$env:FLASK_ENV = "development" 
+$env:FLASK_APP = "outpost-calc-web"
+flask run
 
+# in Bash
+source venv/bin/activate
+export FLASK_ENV=development
+export FLASK_APP=outpost-calc-web
+flask run
 
-# For outpost-calc.py development
+# then access the web app with 
+http://localhost:5000
 
-At the container's bash prompt, cd to your Git/outpost-calc directory under your home directory (ex. cd /root/Git/outpost-calc). From the container's bash prompt, execute the outpost-calc.py script, then edit the script in your favorite editor outside the container, and then re-execute the script at the container's bash prompt to see your new changes. This saves you from rebuilding the Docker image after every script edit just to test your changes.
+# or run the outpost_calc.py script directly
+(flask) $ ./outpost-calc.py -h
+```

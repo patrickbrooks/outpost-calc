@@ -73,6 +73,10 @@ def find_unique_totals(cards_num):
     # Loop over all lengths of all combinations of cards_num. Note that
     # with 20+ cards, this loop is executed millions of times ... so be
     # sensitive to realtime.
+    #
+    # TODO: Refactor to cut the number of iterations in half by processing
+    # both the combination and the unused combination in the same iteration.
+    #
     for r in range(len(cards_num)+1):
         for comb in combinations(cards_num, r):
             log.debug(comb)
