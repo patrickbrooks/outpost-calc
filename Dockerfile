@@ -18,10 +18,10 @@ RUN pip install gunicorn
 
 COPY app app
 COPY migrations migrations
-COPY app.db config.py outpost_calc.py outpost-calc-web.py boot.sh ./
+COPY app.db config.py outpost_calc.py outpost_calc_web.py boot.sh ./
 RUN chmod +x boot.sh 
 
-ENV FLASK_APP outpost-calc-web.py
+ENV FLASK_APP outpost_calc_web.py
 
 RUN chown -R outpostcalc:outpostcalc ./
 USER outpostcalc

@@ -1,6 +1,6 @@
-# Running outpost_calc.py script and outpost-calc-web.py flask application via Docker containers
+# Running outpost_calc.py script and outpost_calc_web.py flask application via Docker containers
 
-These instructions create and run a Docker container that executes the outpost-calc-web.py flask application.
+These instructions create and run a Docker container that executes the outpost_calc_web.py flask application.
 
 1. Install Docker on your system
 
@@ -39,13 +39,13 @@ http://localhost:8000
 # in Powershell
 venv\Scripts\Activate.ps1
 $env:FLASK_ENV = "development" 
-$env:FLASK_APP = "outpost-calc-web"
+$env:FLASK_APP = "outpost_calc_web"
 flask run
 
 # in Bash
 source venv/bin/activate
 export FLASK_ENV=development
-export FLASK_APP=outpost-calc-web
+export FLASK_APP=outpost_calc_web
 flask run
 
 # then access the web app with 
